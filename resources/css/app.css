@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.container {
+    width: 1140px;
+    position: relative;
+    margin: 0 auto;
+}
+* {
+    scrollbar-color: #4b4b4b #292929;
+}
+body{
+    background: linear-gradient(137deg, rgba(30, 30, 30, 0.5) 0%, #1e1e1e 49.61%, #1e1e1e 100%);
+}

@@ -1,0 +1,86 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./public/:/var/www/public
+      - ./_docker/nginx/conf.d/:/etc/nginx/conf.d/
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - reverb-example-network
+    container_name: project_nginx
+
+  app:
+    build:
+      context: .
+      dockerfile: _docker/app/Dockerfile
+    volumes:
+      - ./:/var/www/
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8080:8080"
+    container_name: project_app
+    networks:
+      - reverb-example-network
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_HOST=db
+      - DB_DATABASE=board-duels
+      - DB_USERNAME=root
+      - DB_PASSWORD=BigPassword09!d
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=database
+      - QUEUE_CONNECTION=database
+      - REDIS_HOST=redis
+    command: php-fpm
+
+  db:
+    image: mysql:8.0
+    restart: always
+    volumes:
+      - ./tmp/db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: board-duels
+      MYSQL_ROOT_PASSWORD: BigPassword09!d
+    ports:
+      - 8101:3306
+    networks:
+      - reverb-example-network
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    container_name: project_db
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - reverb-example-network
+    container_name: project_redis
+
+  node:
+    image: node:18
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www/
+    ports:
+      - "5173:5173"
+    container_name: project_node
+    networks:
+      - reverb-example-network
+    command: ["sh", "-c", "npm install && npm run dev"]
+
+networks:
+  reverb-example-network:
+    driver: bridge
+
+
+
+
